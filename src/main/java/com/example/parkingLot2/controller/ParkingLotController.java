@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ParkingLotController {
 
-  private ParkingLotService parkingLotService;
+  private final ParkingLotService parkingLotService;
 
   @PostMapping(value = "/_getParkingSlot", produces = MediaType.APPLICATION_JSON_VALUE)
   public GetParkingLotResponse getParkingLot(@RequestBody GetParkingLotRequest getParkingLotRequest){

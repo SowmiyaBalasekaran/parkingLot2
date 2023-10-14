@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GetParkingLotResponse {
   private int floor;
-  private int slotNo;
+  private String slotNo;
 }

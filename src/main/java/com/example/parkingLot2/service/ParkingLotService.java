@@ -1,5 +1,6 @@
 package com.example.parkingLot2.service;
 
+
 import com.example.parkingLot2.entity.enums.VechileModel;
 import com.example.parkingLot2.modal.GetParkingLotResponse;
 import com.example.parkingLot2.modal.VehicleLeavingResponse;

@@ -13,14 +13,15 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "User")
+@Document(collection = "Vehicle")
 public class Vehicle {
   private String vehicleNo;
   private String vehicleOwnerName;
   private LocalDateTime enterTime;
   private int durationInHours;
   private int floorNumber;
-  private int slotNumber;
+  private String slotNumber;
+  private int vehiclePositionNumber;
   private VechileModel vechileModel;
   private String ownerName;
 }

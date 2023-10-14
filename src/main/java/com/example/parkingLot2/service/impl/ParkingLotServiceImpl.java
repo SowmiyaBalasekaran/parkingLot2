@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -37,36 +38,52 @@ public class ParkingLotServiceImpl implements ParkingLotService {
       String vehicleOwnerName) {
     Optional<User> user = userRepository.findByUserName(userName);
 
-    Map<Integer, List<Integer>> floorSlotMap = new HashMap<>();
+    GetParkingLotResponse getParkingLotResponse = new GetParkingLotResponse();
+    List<GetParkingLotResponse> getParkingLotResponseList = new ArrayList<>();
+
+    Map<Integer, Map<String, List<Integer>>> floorSlotVehicleListMap = new HashMap<>();
     if (VechileModel.TWO_WHEELER.equals(vechileModel)) {
-      floorSlotMap = user.get().getFloorAndTwoWheelerListMap();
+      floorSlotVehicleListMap = user.get().getFloorSlotTwoWheelerListMap();
     } else if (VechileModel.FOUR_WHEELER.equals(vechileModel)) {
-      floorSlotMap = user.get().getFloorAndTwoWheelerListMap();
+      floorSlotVehicleListMap = user.get().getFloorSlotFlourWheelerListMap();
     } else {
       throw new InputMismatchException();
     }
 
-    for (int i = 0; i <= floorLimit; i++) {
-      List<Integer> slotList = floorSlotMap.get(i);
-      if (CollectionUtils.isEmpty(slotList)) {
-        for (int j = 1; j <= slotList.size(); j++) {
-          if (slotList.get(j) == 0) {
-            vehicleRepository.save(Vehicle.builder()
-                .vehicleNo(vehicleNumber)
-                .ownerName(userName)
-                .vechileModel(vechileModel)
-                .vehicleOwnerName(vehicleOwnerName)
-                .enterTime(LocalDateTime.now())
-                .build());
-            return GetParkingLotResponse.builder()
-                .floor(i)
-                .slotNo(j)
-                .build();
+    for (int i =1; i<=floorLimit;i++){
+      Map<String, List<Integer>> slotVehicleListMap = floorSlotVehicleListMap.get(i);
+      int finalI = i;
+      if(Objects.nonNull(slotVehicleListMap)){
+        slotVehicleListMap.forEach((slotName, vehicleAvailableList) -> {
+          for (int j =0 ;j < vehicleAvailableList.size(); j++){
+            if(vehicleAvailableList.get(j) == 0){
+              vehicleRepository.save(Vehicle.builder()
+                  .vehicleNo(vehicleNumber)
+                  .ownerName(userName)
+                  .vechileModel(vechileModel)
+                  .floorNumber(finalI)
+                  .slotNumber(slotName)
+                  .vehiclePositionNumber(j)
+                  .vehicleOwnerName(vehicleOwnerName)
+                  .enterTime(LocalDateTime.now())
+                  .build());
+              vehicleAvailableList.set(j,1);
+              getParkingLotResponse.setFloor(finalI);
+              getParkingLotResponse.setSlotNo(slotName);
+              getParkingLotResponseList.add(getParkingLotResponse);
+              return;
+
+            }
           }
-        }
+        });
       }
+
     }
-    return null;
+    if(CollectionUtils.isEmpty(getParkingLotResponseList)){
+      return new GetParkingLotResponse();
+    }else {
+      return getParkingLotResponseList.get(0);
+    }
   }
 
   @Override
@@ -76,11 +93,11 @@ public class ParkingLotServiceImpl implements ParkingLotService {
     int duration = localDateTime.getHour() - vehicle.getEnterTime().getHour();
     Optional<User> user = userRepository.findByUserName(vehicle.getOwnerName());
     Double cost;
-    List<Integer> slotList = new ArrayList<>();
+    Map<String, List<Integer>> slotVehicleMap = new HashMap<>();
     if (vehicle.getVechileModel().equals(VechileModel.TWO_WHEELER)) {
       cost = user.get().getCostPerDuration().get(VechileModel.TWO_WHEELER) * duration;
-      slotList = user.get().getFloorAndTwoWheelerListMap().get(vehicle.getFloorNumber());
-      slotList.set(vehicle.getSlotNumber(), 0);
+      slotVehicleMap = user.get().getFloorSlotTwoWheelerListMap().get(vehicle.getFloorNumber());
+      slotVehicleMap.get(vehicle.getSlotNumber()).set(vehicle.getVehiclePositionNumber(), 0);
       return VehicleLeavingResponse.builder()
           .vehicleNumber(vehicleNumber)
           .duration(duration)
@@ -89,8 +106,8 @@ public class ParkingLotServiceImpl implements ParkingLotService {
 
     } else if (vehicle.getVechileModel().equals(VechileModel.FOUR_WHEELER)) {
       cost = user.get().getCostPerDuration().get(VechileModel.FOUR_WHEELER) * duration;
-      slotList = user.get().getFloorAndTwoWheelerListMap().get(vehicle.getFloorNumber());
-      slotList.set(vehicle.getSlotNumber(), 0);
+      slotVehicleMap = user.get().getFloorSlotTwoWheelerListMap().get(vehicle.getFloorNumber());
+      slotVehicleMap.get(vehicle.getSlotNumber()).set(vehicle.getVehiclePositionNumber(), 0);
       return VehicleLeavingResponse.builder()
           .vehicleNumber(vehicleNumber)
           .duration(duration)

@@ -7,10 +7,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class ParkingLot {
-  private String ownerName;
-  private int totalTwoWheelerCountPerDay;
-  private int totalFourWheelerCountPerDay;
+@NoArgsConstructor
+public class VechileCountPerSlot {
+  private int totalTwoWheelerCount;
+  private int totalFourWheelerCount;
+  private boolean isAvailable = true;
 }

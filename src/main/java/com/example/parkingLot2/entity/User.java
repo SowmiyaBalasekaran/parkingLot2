@@ -21,6 +21,6 @@ public class User {
   private int twoWheelersSlotCount;
   private int fourWheelersSlotCount;
   private Map<VechileModel,Double> costPerDuration;
-  private Map<Integer, List<Integer>> floorAndTwoWheelerListMap;
-  private Map<Integer, List<Integer>> floorAndFloorWheelerListMap;
+  private Map<Integer, Map<String, List<Integer>>> floorSlotTwoWheelerListMap;
+  private Map<Integer, Map<String, List<Integer>>> floorSlotFlourWheelerListMap;
 }

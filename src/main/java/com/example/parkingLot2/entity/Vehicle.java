@@ -24,4 +24,5 @@ public class Vehicle {
   private int vehiclePositionNumber;
   private VechileModel vechileModel;
   private String ownerName;
+  private boolean isLeft;
 }

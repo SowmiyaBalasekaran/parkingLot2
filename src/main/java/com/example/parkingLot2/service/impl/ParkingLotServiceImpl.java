@@ -37,6 +37,10 @@ public class ParkingLotServiceImpl implements ParkingLotService {
       String vehicleNumber,
       String vehicleOwnerName) {
     Optional<User> user = userRepository.findByUserName(userName);
+    Vehicle vehicle = vehicleRepository.findByVehicleNo(vehicleNumber);
+        if(!Objects.isNull(vehicle) && !vehicle.isLeft()){
+          return new GetParkingLotResponse();
+        }
 
     GetParkingLotResponse getParkingLotResponse = new GetParkingLotResponse();
     List<GetParkingLotResponse> getParkingLotResponseList = new ArrayList<>();
@@ -98,6 +102,8 @@ public class ParkingLotServiceImpl implements ParkingLotService {
       cost = user.get().getCostPerDuration().get(VechileModel.TWO_WHEELER) * duration;
       slotVehicleMap = user.get().getFloorSlotTwoWheelerListMap().get(vehicle.getFloorNumber());
       slotVehicleMap.get(vehicle.getSlotNumber()).set(vehicle.getVehiclePositionNumber(), 0);
+      vehicle.setLeft(true);
+      vehicleRepository.save(vehicle);
       return VehicleLeavingResponse.builder()
           .vehicleNumber(vehicleNumber)
           .duration(duration)
@@ -108,6 +114,8 @@ public class ParkingLotServiceImpl implements ParkingLotService {
       cost = user.get().getCostPerDuration().get(VechileModel.FOUR_WHEELER) * duration;
       slotVehicleMap = user.get().getFloorSlotTwoWheelerListMap().get(vehicle.getFloorNumber());
       slotVehicleMap.get(vehicle.getSlotNumber()).set(vehicle.getVehiclePositionNumber(), 0);
+      vehicle.setLeft(true);
+      vehicleRepository.save(vehicle);
       return VehicleLeavingResponse.builder()
           .vehicleNumber(vehicleNumber)
           .duration(duration)
